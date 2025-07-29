@@ -1,0 +1,108 @@
+// CSS Custom Properties for maintainability
+:host {
+    --primary-color: #2d37f5;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --gap-sm: 1rem;
+    --gap-md: 2rem;
+    --gap-lg: 5rem;
+  }
+  
+  .grupo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .grupo-header {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-sm);
+    
+    &__title {
+      margin: 0;
+      color: inherit;
+    }
+    
+    &__name {
+      margin: 0;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
+  
+  .grupo-content {
+    padding: 0 var(--spacing-xl) var(--spacing-xl);
+  }
+  
+  .section {
+    margin-bottom: var(--spacing-lg);
+    
+    &__header {
+      margin-bottom: var(--spacing-md);
+      
+      h5 {
+        margin: 0 0 var(--spacing-sm) 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+    }
+    
+    &__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+  }
+  
+  .field-group {
+    display: flex;
+    gap: var(--gap-lg);
+    flex-wrap: wrap;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    &--single {
+      flex-direction: column;
+    }
+  }
+  
+  .justificativa {
+    &__label {
+      display: block;
+      color: var(--primary-color);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .field {
+    &--sm { flex: 0 0 25%; min-width: 200px; }
+    &--md { flex: 0 0 50%; min-width: 300px; }
+    &--lg { flex: 1; min-width: 400px; }
+    &--full { width: 100%; }
+    
+    @media (max-width: 768px) {
+      &--sm,
+      &--md,
+      &--lg {
+        flex: 1;
+        min-width: unset;
+      }
+    }
+  }
+  

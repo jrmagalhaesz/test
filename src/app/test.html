@@ -1,0 +1,124 @@
+<div class="grupo-container">
+    <header class="grupo-header">
+      <h3 class="grupo-header__title">Visualizar Grupo -</h3>
+      <h3 class="grupo-header__name">{{ grupoData.nome }}</h3>
+    </header>
+  
+    <main class="grupo-content">
+      <!-- Dados do Grupo -->
+      <section class="section" aria-labelledby="dados-grupo-title">
+        <header class="section__header">
+          <h5 id="dados-grupo-title">Dados do grupo</h5>
+          <bt-divider></bt-divider>
+        </header>
+        
+        <div class="section__content">
+          <bt-read-only
+            class="field field--sm"
+            label="Grupo de Trabalho"
+            size="regular"
+            type="secondary"
+            [value]="grupoData.grupoTrabalho">
+          </bt-read-only>
+  
+          <div class="field-group">
+            <bt-read-only
+              class="field field--sm"
+              label="Unidade Jurídica"
+              size="regular"
+              type="secondary"
+              [value]="grupoData.unidadeJuridica">
+            </bt-read-only>
+  
+            <bt-read-only
+              class="field field--md"
+              label="Funcionário"
+              size="regular"
+              type="secondary"
+              [value]="grupoData.funcionario">
+            </bt-read-only>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Justificativa -->
+      <section class="section" aria-labelledby="justificativa-title">
+        <div class="justificativa">
+          <label class="justificativa__label" id="justificativa-title">
+            Justificativa:
+          </label>
+          <bt-read-only
+            kind="textarea"
+            class="field field--full"
+            size="regular"
+            type="secondary"
+            [value]="grupoData.justificativa"
+            aria-labelledby="justificativa-title">
+          </bt-read-only>
+        </div>
+      </section>
+  
+      <!-- Funcionários -->
+      <section class="section" aria-labelledby="funcionarios-title">
+        <header class="section__header">
+          <h5 id="funcionarios-title">Funcionários</h5>
+          <bt-divider></bt-divider>
+        </header>
+        
+        <div class="section__content">
+          <div class="field-group" *ngFor="let funcionario of grupoData.funcionarios; trackBy: trackByFuncionario">
+            <bt-read-only
+              class="field field--sm"
+              label="Unidade Jurídica"
+              size="regular"
+              type="secondary"
+              [value]="funcionario.unidadeJuridica">
+            </bt-read-only>
+  
+            <bt-read-only
+              class="field field--md"
+              label="Funcionário"
+              size="regular"
+              type="secondary"
+              [value]="funcionario.nome">
+            </bt-read-only>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Consulente -->
+      <section class="section" aria-labelledby="consulente-title">
+        <header class="section__header">
+          <h5 id="consulente-title">Consulente</h5>
+          <bt-divider></bt-divider>
+        </header>
+        
+        <div class="section__content">
+          <div class="field-group field-group--single" *ngFor="let consulente of grupoData.consulentes; trackBy: trackByConsulente">
+            <bt-read-only
+              class="field field--sm"
+              label="Unidade Jurídica"
+              size="regular"
+              type="secondary"
+              [value]="consulente.unidadeJuridica">
+            </bt-read-only>
+          </div>
+        </div>
+      </section>
+  
+      <bt-divider></bt-divider>
+  
+      <!-- Actions -->
+      <div class="actions">
+        <button 
+          btButton 
+          kind="primary" 
+          size="regular"
+          (click)="onVoltar()"
+          aria-label="Voltar para a página anterior">
+          VOLTAR
+        </button>
+      </div>
+    </main>
+  </div>
+  
