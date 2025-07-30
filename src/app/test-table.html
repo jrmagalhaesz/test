@@ -1,0 +1,325 @@
+<div class="table-container">
+  <header class="table-header">
+    <h2 class="table-title">Gerenciamento de Grupos</h2>
+    <p class="table-subtitle">Visualize e gerencie todos os grupos de trabalho</p>
+  </header>
+
+  <!-- Filters and Search -->
+  <section class="filters-section" aria-label="Filtros e busca">
+    <div class="filters-row">
+      <div class="search-group">
+        <label for="search-input" class="sr-only">Buscar grupos</label>
+        <input
+          id="search-input"
+          type="text"
+          class="search-input"
+          placeholder="Buscar por nome, responsável, funcionário ou unidade..."
+          [value]="searchTerm"
+          (input)="onSearchChange($event)">
+      </div>
+
+      <div class="filter-group">
+        <label for="status-filter" class="filter-label">Status:</label>
+        <select
+          id="status-filter"
+          class="status-filter"
+          [value]="statusFilter"
+          (change)="onStatusFilterChange($event)">
+          <option value="all">Todos</option>
+          <option value="active">Ativos</option>
+          <option value="inactive">Inativos</option>
+        </select>
+      </div>
+
+      <div class="actions-group">
+        <button
+          btButton
+          kind="secondary"
+          size="regular"
+          (click)="clearFilters()"
+          [disabled]="!searchTerm && statusFilter === 'all' && !sortColumn">
+          Limpar Filtros
+        </button>
+
+        <button
+          btButton
+          kind="ghost"
+          size="regular"
+          (click)="refreshTable()"
+          [disabled]="isLoadingTable"
+          title="Atualizar dados">
+          🔄
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <bt-divider></bt-divider>
+
+  <!-- Table Content -->
+  <main class="table-content">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoadingTable">
+      <div class="loading-spinner"></div>
+      <p>Carregando dados da tabela...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="error && !isLoadingTable">
+      <div class="error-message">
+        <span class="error-icon">⚠️</span>
+        <p>{{ error }}</p>
+        <button btButton kind="primary" size="regular" (click)="refreshTable()">
+          Tentar Novamente
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper" *ngIf="!isLoadingTable && !error">
+      <div class="table-responsive">
+        <table class="grupos-table" role="table" aria-label="Lista de grupos de trabalho">
+          <thead>
+            <tr role="row">
+              <th scope="col">
+                <button
+                  class="sort-button"
+                  (click)="onSort('nomeGrupo')"
+                  [attr.aria-label]="'Ordenar por nome do grupo ' + (sortColumn === 'nomeGrupo' ? (sortDirection === 'asc' ? 'decrescente' : 'crescente') : 'crescente')">
+                  Nome do Grupo
+                  <span class="sort-icon">{{ getSortIcon('nomeGrupo') }}</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  class="sort-button"
+                  (click)="onSort('nivel')"
+                  [attr.aria-label]="'Ordenar por nível ' + (sortColumn === 'nivel' ? (sortDirection === 'asc' ? 'decrescente' : 'crescente') : 'crescente')">
+                  Nível
+                  <span class="sort-icon">{{ getSortIcon('nivel') }}</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  class="sort-button"
+                  (click)="onSort('responsavel')"
+                  [attr.aria-label]="'Ordenar por responsável ' + (sortColumn === 'responsavel' ? (sortDirection === 'asc' ? 'decrescente' : 'crescente') : 'crescente')">
+                  Responsável
+                  <span class="sort-icon">{{ getSortIcon('responsavel') }}</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  class="sort-button"
+                  (click)="onSort('lateralidadeAtual')"
+                  [attr.aria-label]="'Ordenar por lateralidade atual ' + (sortColumn === 'lateralidadeAtual' ? (sortDirection === 'asc' ? 'decrescente' : 'crescente') : 'crescente')">
+                  Lateralidade Atual
+                  <span class="sort-icon">{{ getSortIcon('lateralidadeAtual') }}</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  class="sort-button"
+                  (click)="onSort('unidadeJuridica')"
+                  [attr.aria-label]="'Ordenar por unidade jurídica ' + (sortColumn === 'unidadeJuridica' ? (sortDirection === 'asc' ? 'decrescente' : 'crescente') : 'crescente')">
+                  Unidade Jurídica
+                  <span class="sort-icon">{{ getSortIcon('unidadeJuridica') }}</span>
+                </button>
+              </th>
+              <th scope="col">Status</th>
+              <th scope="col">Última Modificação</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let grupo of filteredItems; trackBy: trackByGrupoTableItem"
+              role="row"
+              [class.inactive]="!grupo.ativo"
+              (dblclick)="onViewGrupoDetails(grupo)"
+              [attr.aria-label]="'Grupo ' + grupo.nomeGrupo + ', duplo clique para ver detalhes'">
+
+              <td>
+                <strong>{{ grupo.nomeGrupo }}</strong>
+              </td>
+
+              <td>
+                <span class="nivel-badge">{{ grupo.nivel }}</span>
+              </td>
+
+              <td>{{ grupo.responsavel }}</td>
+
+              <td>{{ formatLateralidade(grupo.lateralidadeAtual) }}</td>
+
+              <td>{{ grupo.unidadeJuridica }}</td>
+
+              <td>
+                <span [class]="getStatusBadgeClass(grupo.ativo)">
+                  {{ getStatusText(grupo.ativo) }}
+                </span>
+              </td>
+
+              <td>{{ formatDate(grupo.dataUltimaModificacao) }}</td>
+
+              <td class="actions-cell">
+                <div class="table-actions">
+                  <button
+                    btButton
+                    kind="ghost"
+                    size="small"
+                    (click)="onViewGrupoDetails(grupo)"
+                    [attr.aria-label]="'Ver detalhes do grupo ' + grupo.nomeGrupo"
+                    title="Ver Detalhes">
+                    👁️
+                  </button>
+
+                  <button
+                    btButton
+                    kind="ghost"
+                    size="small"
+                    (click)="onEditGrupo(grupo)"
+                    [attr.aria-label]="'Editar grupo ' + grupo.nomeGrupo"
+                    title="Editar">
+                    ✏️
+                  </button>
+
+                  <button
+                    btButton
+                    kind="ghost"
+                    size="small"
+                    (click)="onToggleGrupoStatus(grupo)"
+                    [attr.aria-label]="(grupo.ativo ? 'Desativar' : 'Ativar') + ' grupo ' + grupo.nomeGrupo"
+                    [title]="grupo.ativo ? 'Desativar' : 'Ativar'">
+                    <span [class]="grupo.ativo ? 'toggle-active' : 'toggle-inactive'">
+                      {{ grupo.ativo ? '🟢' : '⚪' }}
+                    </span>
+                  </button>
+
+                  <button
+                    btButton
+                    kind="ghost"
+                    size="small"
+                    (click)="onViewGrupoHistory(grupo)"
+                    [attr.aria-label]="'Ver histórico do grupo ' + grupo.nomeGrupo"
+                    title="Histórico">
+                    📁
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredItems.length === 0 && gruposTableData.items.length > 0">
+        <div class="empty-content">
+          <span class="empty-icon">🔍</span>
+          <h3>Nenhum resultado encontrado</h3>
+          <p>Tente ajustar os filtros ou termos de busca.</p>
+          <button btButton kind="secondary" size="regular" (click)="clearFilters()">
+            Limpar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- No Data State -->
+      <div class="empty-state" *ngIf="gruposTableData.items.length === 0">
+        <div class="empty-content">
+          <span class="empty-icon">📋</span>
+          <h3>Nenhum grupo encontrado</h3>
+          <p>Não há grupos cadastrados no sistema.</p>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <nav class="pagination-container" *ngIf="gruposTableData.totalPages > 1" aria-label="Navegação de páginas">
+        <div class="pagination-info">
+          <span>{{ getPaginationInfo() }}</span>
+        </div>
+
+        <div class="pagination-controls">
+          <div class="page-size-selector">
+            <label for="page-size" class="page-size-label">Itens por página:</label>
+            <select
+              id="page-size"
+              class="page-size-select"
+              [value]="itemsPerPage"
+              (change)="onPageSizeChange($event)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+
+          <div class="pagination-buttons">
+            <button
+              btButton
+              kind="ghost"
+              size="small"
+              (click)="goToFirstPage()"
+              [disabled]="currentPage === 1"
+              title="Primeira página"
+              aria-label="Ir para a primeira página">
+              ⏮️
+            </button>
+
+            <button
+              btButton
+              kind="ghost"
+              size="small"
+              (click)="goToPreviousPage()"
+              [disabled]="currentPage === 1"
+              title="Página anterior"
+              aria-label="Ir para a página anterior">
+              ◀️
+            </button>
+
+            <div class="page-numbers">
+              <button
+                *ngFor="let pageNum of getPageNumbers()"
+                btButton
+                [kind]="pageNum === currentPage ? 'primary' : 'ghost'"
+                size="small"
+                (click)="goToPage(pageNum)"
+                [attr.aria-label]="'Ir para a página ' + pageNum"
+                [attr.aria-current]="pageNum === currentPage ? 'page' : null">
+                {{ pageNum }}
+              </button>
+            </div>
+
+            <button
+              btButton
+              kind="ghost"
+              size="small"
+              (click)="goToNextPage()"
+              [disabled]="currentPage === gruposTableData.totalPages"
+              title="Próxima página"
+              aria-label="Ir para a próxima página">
+              ▶️
+            </button>
+
+            <button
+              btButton
+              kind="ghost"
+              size="small"
+              (click)="goToLastPage()"
+              [disabled]="currentPage === gruposTableData.totalPages"
+              title="Última página"
+              aria-label="Ir para a última página">
+              ⏭️
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Table Footer -->
+      <footer class="table-footer" *ngIf="gruposTableData.items.length > 0">
+        <div class="table-summary">
+          <p>{{ getPaginationInfo() }}</p>
+          <p *ngIf="gruposTableData.totalPages > 1">
+            Página {{ currentPage }} de {{ gruposTableData.totalPages }}
+          </p>
+        </div>
+      </footer>
+    </div>
+  </main>
+</div>
